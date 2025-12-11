@@ -5,6 +5,12 @@
 
 set -e
 
+# Load .env.deploy if exists
+if [ -f .env.deploy ]; then
+    echo "Loading configuration from .env.deploy..."
+    export $(cat .env.deploy | grep -v '^#' | xargs)
+fi
+
 # Configuration
 REMOTE_USER="${DEPLOY_USER:-root}"
 REMOTE_HOST="${DEPLOY_HOST}"
