@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocManager Drive - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            min-height: 150px;
+            font-family: monospace;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #dc3545;
+            padding: 0.75rem;
+            background: #f8d7da;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .success {
+            color: #155724;
+            padding: 0.75rem;
+            background: #d4edda;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header-link {
+            color: white;
+            text-decoration: none;
+            margin-right: 1.5rem;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+        }
+
+        .header-link:hover {
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Panel de Administración</h1>
+        <div class="header-actions">
+            <a class="header-link" onclick="openProfileModal()">👤 Mi Perfil</a>
+            <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Profile Modal -->
+        <div id="profileModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>👤 Mi Perfil de Admin</h2>
+                    <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+                </div>
+                <div id="profileError" class="error hidden"></div>
+                <div id="profileSuccess" class="success hidden"></div>
+                <div id="profileInfo">Cargando...</div>
+            </div>
+        </div>
+
+        <!-- Drive Credentials -->
+        <div class="card" id="driveCredentialsCard">
+            <h2>Configurar Google Drive - Service Account</h2>
+            <div id="credError" class="error hidden"></div>
+            <div id="credSuccess" class="success hidden"></div>
+
+            <div style="background: #e3f2fd; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
+                <h4 style="margin-bottom: 0.5rem;">📋 Pasos para configurar:</h4>
+                <ol style="margin-left: 1.5rem; line-height: 1.8;">
+                    <li>Ve a <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                    <li>Crea o selecciona un proyecto</li>
+                    <li>Habilita la API de Google Drive</li>
+                    <li>Ve a "IAM & Admin" → "Service Accounts" → "Create Service Account"</li>
+                    <li>Dale un nombre (ej: "Mi Archivador Drive")</li>
+                    <li>Crea una clave JSON y descárgala</li>
+                    <li>En Google Drive, comparte tu carpeta con el email del Service Account (client_email del JSON)</li>
+                    <li>Copia el contenido del JSON y pégalo abajo</li>
+                </ol>
+            </div>
+
+            <form id="credForm">
+                <div class="form-group">
+                    <label for="serviceAccountJson">Service Account JSON *</label>
+                    <textarea id="serviceAccountJson" placeholder='{"type": "service_account", "project_id": "...", "private_key": "...", "client_email": "..."}' required></textarea>
+                    <small>Pega aquí el contenido completo del archivo JSON descargado de Google Cloud Console</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="folderId">
+                        Folder ID de Google Drive *
+                    </label>
+                    <input type="text" id="folderId" required placeholder="1a2B3c4D5e6F7g8H9i0J">
+                    <small>📌 Cómo obtener: Abre la carpeta en Google Drive, copia la URL y extrae el ID después de /folders/</small>
+                </div>
+
+                <button type="submit">💾 Guardar Credenciales</button>
+            </form>
+        </div> <!-- End driveCredentialsCard -->
+
+        <!-- Drive Explorer (Admin/Superadmin with credentials) -->
+        <div class="card" id="driveExplorerSection" style="display: none;">
+            <h2>📁 Explorador de Google Drive</h2>
+            <div id="driveExplorerContent">
+                <div style="margin-bottom: 1rem;">
+                    <button onclick="loadDriveContents()" class="btn-primary">🔄 Actualizar</button>
+                    <button onclick="createFolderStructure()" class="btn-success">📂 Crear Estructura de Carpetas</button>
+                </div>
+                <div id="driveFiles">Cargando...</div>
+            </div>
+        </div>
+
+        <!-- Users Management (Superadmin only) -->
+        <div class="card" id="superadminSection" style="display: none;">
+            <h2>Gestión de Usuarios</h2>
+            <div id="usersTable">Cargando usuarios...</div>
+        </div>
+
+        <!-- Admins Management (Superadmin only) -->
+        <div class="card" id="adminsSection" style="display: none;">
+            <h2>Gestión de Administradores</h2>
+            <div id="adminsTable">Cargando administradores...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000' 
+            : 'http://localhost:8000';
+
+        let authToken = localStorage.getItem('token');
+        let currentUser = null;
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.classList.remove('hidden');
+            setTimeout(() => element.classList.add('hidden'), 5000);
+        }
+
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.classList.remove('hidden');
+            setTimeout(() => element.classList.add('hidden'), 3000);
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+                'Authorization': `Bearer ${authToken}`
+            };
+
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+                throw new Error(error.detail || 'Error en la solicitud');
+            }
+
+            return response.json();
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+
+        async function loadProfile() {
+            try {
+                currentUser = await apiRequest('/users/me');
+                
+                // Save current user to localStorage for role change checks
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Verify user is admin or superadmin
+                if (currentUser.role !== 'admin' && currentUser.role !== 'superadmin') {
+                    showError('profileError', 'Acceso denegado. Solo administradores.');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+                
+                // Show basic user info
+                document.getElementById('profileInfo').innerHTML = `
+                    <p><strong>Email:</strong> ${currentUser.email}</p>
+                    <p><strong>Rol:</strong> <span class="badge badge-success">${currentUser.role}</span></p>
+                    <p>Cargando estado de Google Drive...</p>
+                `;
+
+                // Show superadmin sections if applicable
+                if (currentUser.role === 'superadmin') {
+                    document.getElementById('superadminSection').style.display = 'block';
+                    document.getElementById('adminsSection').style.display = 'block';
+                    await loadUsers();
+                    await loadAdmins();
+                }
+                
+                // Load Drive status and show explorer if credentials exist
+                await loadDriveStatus();
+            } catch (error) {
+                showError('profileError', error.message);
+            }
+        }
+
+        async function updateUserRole(userId, newRole) {
+            if (!confirm(`¿Estás seguro de cambiar el rol de este usuario a "${newRole}"?`)) {
+                return;
+            }
+
+            try {
+                await apiRequest(`/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                alert('Rol actualizado exitosamente');
+                await loadUsers(); // Recargar tabla
+            } catch (error) {
+                alert(`Error al actualizar rol: ${error.message}`);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const users = await apiRequest('/admin/audit/users');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+                
+                document.getElementById('usersTable').innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Rol Actual</th>
+                                <th>Cambiar Rol</th>
+                                <th>Fecha Creación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => {
+                                const isCurrentUser = currentUser.id && user.id === currentUser.id;
+                                const roleColor = user.role === 'superadmin' ? 'error' : 
+                                                 user.role === 'admin' ? 'warning' : 'success';
+                                return `
+                                <tr>
+                                    <td>${user.id}</td>
+                                    <td>${user.email}</td>
+                                    <td><span class="badge badge-${roleColor}">${user.role}</span></td>
+                                    <td>
+                                        ${isCurrentUser ? 
+                                            '<small style="color: #666;">No puedes cambiar tu propio rol</small>' :
+                                            `<select class="role-select" data-user-id="${user.id}" data-current-role="${user.role}">
+                                                <option value="user" ${user.role === 'user' ? 'selected' : ''}>user</option>
+                                                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>admin</option>
+                                                <option value="superadmin" ${user.role === 'superadmin' ? 'selected' : ''}>superadmin</option>
+                                            </select>
+                                            <button onclick="updateUserRole(${user.id}, this.previousElementSibling.value)" 
+                                                    style="margin-left: 8px; padding: 4px 12px; font-size: 12px;">
+                                                Actualizar
+                                            </button>`
+                                        }
+                                    </td>
+                                    <td>${new Date(user.created_at).toLocaleString()}</td>
+                                </tr>
+                            `}).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersTable').innerHTML = `
+                    <div style="color: #e74c3c; padding: 20px; text-align: center;">
+                        Error al cargar usuarios: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function loadAdmins() {
+            try {
+                const admins = await apiRequest('/admin/all');
+                document.getElementById('adminsTable').innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Credenciales</th>
+                                <th>Fecha Creación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${admins.map(admin => `
+                                <tr>
+                                    <td>${admin.id}</td>
+                                    <td>${admin.name}</td>
+                                    <td>${admin.email}</td>
+                                    <td>${admin.drive_cred_type ? 
+                                        `<span class="badge badge-success">${admin.drive_cred_type}</span>` : 
+                                        `<span class="badge badge-warning">No configuradas</span>`}
+                                    </td>
+                                    <td>${new Date(admin.created_at).toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading admins:', error);
+            }
+        }
+
+        document.getElementById('credForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const jsonText = document.getElementById('serviceAccountJson').value.trim();
+            const folderId = document.getElementById('folderId').value.trim();
+            
+            if (!jsonText) {
+                showError('credError', 'Por favor pega el JSON del Service Account');
+                return;
+            }
+            
+            if (!folderId) {
+                showError('credError', 'Por favor ingresa el Folder ID de Google Drive');
+                return;
+            }
+            
+            try {
+                // Validate JSON format
+                const parsedJson = JSON.parse(jsonText);
+                
+                // Validate Service Account fields
+                if (parsedJson.type !== 'service_account') {
+                    showError('credError', 'El JSON debe ser de tipo "service_account"');
+                    return;
+                }
+                
+                if (!parsedJson.client_email || !parsedJson.private_key) {
+                    showError('credError', 'El JSON no contiene los campos requeridos (client_email, private_key)');
+                    return;
+                }
+                
+                // Send to backend
+                await apiRequest('/drive/credentials', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        service_account_json: jsonText,
+                        drive_folder_id: folderId
+                    })
+                });
+
+                showSuccess('credSuccess', `✅ ¡Credenciales guardadas! Service Account: ${parsedJson.client_email}`);
+                document.getElementById('credForm').reset();
+                
+                // Reload Drive status after 2 seconds
+                setTimeout(async () => {
+                    await loadDriveStatus();
+                }, 2000);
+                
+            } catch (err) {
+                if (err instanceof SyntaxError) {
+                    showError('credError', 'El JSON no es válido. Por favor verifica el formato.');
+                } else {
+                    showError('credError', err.message || 'Error al guardar credenciales');
+                }
+            }
+        });
+        
+        async function loadDriveStatus() {
+            try {
+                const status = await apiRequest('/drive/credentials');
+                const statusDiv = document.getElementById('profileInfo');
+                
+                console.log('Drive status:', status);
+                
+                if (status.has_credentials) {
+                    console.log('Credentials configured, showing explorer');
+                    
+                    statusDiv.innerHTML = `
+                        <p><strong>Email:</strong> ${currentUser.email}</p>
+                        <p><strong>Rol:</strong> <span class="badge badge-success">${currentUser.role}</span></p>
+                        <p><strong>Estado de Google Drive:</strong> 
+                            <span class="badge badge-success">✓ Configurado</span>
+                        </p>
+                        <p><strong>Service Account:</strong> ${status.client_email || 'N/A'}</p>
+                        <p><strong>Folder ID:</strong> ${status.drive_folder_id || 'No especificado'}</p>
+                        <button onclick="deleteDriveCredentials()" class="btn-danger" style="margin-top: 1rem;">
+                            Eliminar Credenciales
+                        </button>
+                    `;
+                    
+                    // Pre-fill folder ID in form if exists
+                    if (status.drive_folder_id) {
+                        document.getElementById('folderId').value = status.drive_folder_id;
+                    }
+                    
+                    // Hide Drive credentials config card when configured
+                    const credCard = document.getElementById('driveCredentialsCard');
+                    if (credCard) {
+                        credCard.style.display = 'none';
+                        console.log('Credentials card hidden');
+                    }
+                    
+                    // Show Drive explorer section ALWAYS when configured
+                    const explorerSection = document.getElementById('driveExplorerSection');
+                    if (explorerSection) {
+                        explorerSection.style.display = 'block';
+                        console.log('Explorer section shown');
+                    } else {
+                        console.error('Explorer section not found!');
+                    }
+                    
+                    await loadDriveContents();
+                } else {
+                    console.log('No credentials, showing config form');
+                    
+                    statusDiv.innerHTML = `
+                        <p><strong>Email:</strong> ${currentUser.email}</p>
+                        <p><strong>Rol:</strong> <span class="badge badge-success">${currentUser.role}</span></p>
+                        <p><strong>Estado de Google Drive:</strong> 
+                            <span class="badge badge-warning">⚠ No configurado</span>
+                        </p>
+                        <p style="margin-top: 0.5rem; color: #636e72;">
+                            📌 Configura tu Service Account de Google Drive abajo para comenzar.
+                        </p>
+                    `;
+                    
+                    // Show Drive credentials config card when not configured
+                    const credCard = document.getElementById('driveCredentialsCard');
+                    if (credCard) {
+                        credCard.style.display = 'block';
+                    }
+                    
+                    // Hide Drive explorer section
+                    const explorerSection = document.getElementById('driveExplorerSection');
+                    if (explorerSection) {
+                        explorerSection.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading Drive status:', error);
+                const statusDiv = document.getElementById('profileInfo');
+                statusDiv.innerHTML = `
+                    <p><strong>Email:</strong> ${currentUser ? currentUser.email : 'Desconocido'}</p>
+                    <p><strong>Estado de Google Drive:</strong> 
+                        <span class="badge badge-warning">Error al cargar</span>
+                    </p>
+                `;
+                document.getElementById('driveCredentialsCard').style.display = 'block';
+                document.getElementById('driveExplorerSection').style.display = 'none';
+            }
+        }
+        
+        async function deleteDriveCredentials() {
+            if (!confirm('¿Estás seguro de que deseas eliminar las credenciales de Google Drive?')) {
+                return;
+            }
+            
+            try {
+                await apiRequest('/drive/credentials', { method: 'DELETE' });
+                showSuccess('profileSuccess', 'Credenciales eliminadas exitosamente');
+                
+                // Hide explorer and show config card again
+                document.getElementById('driveExplorerSection').style.display = 'none';
+                document.getElementById('driveCredentialsCard').style.display = 'block';
+                
+                await loadDriveStatus();
+            } catch (error) {
+                showError('profileError', error.message);
+            }
+        }
+        
+        async function loadDriveContents() {
+            try {
+                const driveFilesDiv = document.getElementById('driveFiles');
+                driveFilesDiv.innerHTML = '<p>Cargando archivos...</p>';
+                
+                const response = await apiRequest('/drive/folder/contents');
+                const createFolderBtn = document.querySelector('button[onclick="createFolderStructure()"]');
+                
+                if (response.total_items === 0) {
+                    // Enable folder structure button when empty
+                    if (createFolderBtn) {
+                        createFolderBtn.disabled = false;
+                        createFolderBtn.style.opacity = '1';
+                    }
+                    
+                    driveFilesDiv.innerHTML = `
+                        <div style="padding: 2rem; text-align: center; background: #f7fafc; border-radius: 8px;">
+                            <p style="color: #718096; margin-bottom: 1rem;">📂 La carpeta está vacía</p>
+                            <p style="color: #4a5568; font-size: 14px;">
+                                Puedes crear una estructura de carpetas inicial para organizar tus documentos.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                } else {
+                    // Disable folder structure button when content exists
+                    if (createFolderBtn) {
+                        createFolderBtn.disabled = true;
+                        createFolderBtn.style.opacity = '0.5';
+                        createFolderBtn.style.cursor = 'not-allowed';
+                    }
+                }
+                
+                const files = response.files;
+                const folders = files.filter(f => f.isFolder);
+                const documents = files.filter(f => !f.isFolder);
+                
+                let html = `
+                    <div style="margin-bottom: 1rem; padding: 0.5rem; background: #edf2f7; border-radius: 4px;">
+                        <strong>Total:</strong> ${response.total_items} items 
+                        (${folders.length} carpetas, ${documents.length} archivos)
+                    </div>
+                `;
+                
+                // Folders
+                if (folders.length > 0) {
+                    html += '<h3 style="margin-top: 1.5rem; color: #2d3748;">📁 Carpetas</h3><table><thead><tr><th>Nombre</th><th>Creado</th><th>Modificado</th></tr></thead><tbody>';
+                    folders.forEach(folder => {
+                        html += `
+                            <tr>
+                                <td>📁 ${folder.name}</td>
+                                <td>${new Date(folder.createdTime).toLocaleString()}</td>
+                                <td>${new Date(folder.modifiedTime).toLocaleString()}</td>
+                            </tr>
+                        `;
+                    });
+                    html += '</tbody></table>';
+                }
+                
+                // Files
+                if (documents.length > 0) {
+                    html += '<h3 style="margin-top: 1.5rem; color: #2d3748;">📄 Archivos</h3><table><thead><tr><th>Nombre</th><th>Tamaño</th><th>Creado</th><th>Modificado</th></tr></thead><tbody>';
+                    documents.forEach(file => {
+                        const size = file.size ? (parseInt(file.size) / 1024).toFixed(2) + ' KB' : '-';
+                        html += `
+                            <tr>
+                                <td>📄 ${file.name}</td>
+                                <td>${size}</td>
+                                <td>${new Date(file.createdTime).toLocaleString()}</td>
+                                <td>${new Date(file.modifiedTime).toLocaleString()}</td>
+                            </tr>
+                        `;
+                    });
+                    html += '</tbody></table>';
+                }
+                
+                driveFilesDiv.innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('driveFiles').innerHTML = `
+                    <div style="color: #e74c3c; padding: 1rem; background: #fee; border-radius: 4px;">
+                        Error al cargar archivos: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        async function createFolderStructure() {
+            if (!confirm('¿Crear estructura de carpetas inicial? Esto creará las carpetas: Pendientes, En Revisión, Aprobados, Rechazados, Archivados')) {
+                return;
+            }
+            
+            try {
+                const result = await apiRequest('/drive/folder/create-structure', {
+                    method: 'POST'
+                });
+                
+                alert('✅ Estructura de carpetas creada exitosamente');
+                await loadDriveContents();
+                
+            } catch (error) {
+                let errorMsg = error.message;
+                
+                // Detect 404 error (folder not found = Service Account sin acceso)
+                if (errorMsg.includes('404') || errorMsg.includes('File not found') || errorMsg.includes('notFound')) {
+                    errorMsg = `❌ ERROR: El Service Account NO tiene acceso a la carpeta\n\n` +
+                               `📋 SOLUCIÓN:\n` +
+                               `1. Obtén el 'client_email' de tu Service Account JSON\n` +
+                               `2. Ve a Google Drive y abre tu carpeta\n` +
+                               `3. Clic derecho → Compartir\n` +
+                               `4. Pega el client_email del Service Account\n` +
+                               `5. Dale permisos de 'Editor' o 'Propietario'\n` +
+                               `6. Espera 1-2 minutos y vuelve a intentar\n\n` +
+                               `⚠️ El Service Account es como otro usuario, necesita acceso explícito.`;
+                }
+                
+                alert(errorMsg);
+            }
+        }
+
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'block';
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('profileModal');
+            if (event.target === modal) {
+                closeProfileModal();
+            }
+        }
+
+        // Initialize
+        if (!authToken) {
+            window.location.href = 'index.html';
+        } else {
+            loadProfile();
+        }
+    </script>
+</body>
+</html>

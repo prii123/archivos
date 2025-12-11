@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocManager Drive - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .login-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 2rem;
+        }
+
+        .files-section {
+            flex: 2;
+            min-width: 400px;
+            padding: 2rem;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .error {
+            color: #dc3545;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8d7da;
+            border-radius: 5px;
+        }
+
+        .success {
+            color: #155724;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #d4edda;
+            border-radius: 5px;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+        }
+
+        .file-item {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .user-info {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 DocManager Drive</h1>
+            <p>Sistema de Gestión Documental con Google Drive</p>
+        </div>
+
+        <div class="content">
+            <!-- Login Section -->
+            <div class="login-section" id="loginSection">
+                <h2>Iniciar Sesión</h2>
+                <div id="loginError" class="error hidden"></div>
+                <div id="loginSuccess" class="success hidden"></div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit">Iniciar Sesión</button>
+                </form>
+
+                <button type="button" class="btn-secondary" onclick="showRegister()">¿No tienes cuenta? Regístrate</button>
+            </div>
+
+            <!-- Register Section -->
+            <div class="login-section hidden" id="registerSection">
+                <h2>Registrarse</h2>
+                <div id="registerError" class="error hidden"></div>
+                <div id="registerSuccess" class="success hidden"></div>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regEmail">Correo Electrónico</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Contraseña (mínimo 8 caracteres)</label>
+                        <input type="password" id="regPassword" required minlength="8">
+                    </div>
+                    <button type="submit">Registrarse</button>
+                </form>
+
+                <button type="button" class="btn-secondary" onclick="showLogin()">Ya tengo cuenta</button>
+            </div>
+
+            <!-- Files Section -->
+            <div class="files-section" id="filesSection">
+                <div class="user-info" id="userInfo">
+                    <strong>Usuario:</strong> <span id="userEmail"></span>
+                    <button type="button" class="btn-danger" style="float: right;" onclick="logout()">Cerrar Sesión</button>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('upload')">Subir Archivo</div>
+                    <div class="tab" onclick="showTab('list')">Mis Archivos</div>
+                </div>
+
+                <!-- Upload Tab -->
+                <div id="uploadTab">
+                    <h3>Subir Archivo</h3>
+                    <div id="uploadError" class="error hidden"></div>
+                    <div id="uploadSuccess" class="success hidden"></div>
+
+                    <form id="uploadForm">
+                        <div class="form-group">
+                            <label for="adminSelect">Seleccionar Admin</label>
+                            <select id="adminSelect" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fileInput">Archivo</label>
+                            <input type="file" id="fileInput" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Descripción (opcional)</label>
+                            <input type="text" id="description">
+                        </div>
+                        <button type="submit" id="uploadBtn">Subir Archivo</button>
+                    </form>
+                </div>
+
+                <!-- List Tab -->
+                <div id="listTab" class="hidden">
+                    <h3>Mis Archivos</h3>
+                    <div id="filesList" class="file-list">
+                        <div class="loading">Cargando archivos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="upload.js"></script>
+</body>
+</html>
