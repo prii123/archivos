@@ -48,21 +48,23 @@ print_info "Starting deployment to $REMOTE_HOST..."
 print_info "Creating deployment package..."
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 PACKAGE_NAME="${PROJECT_NAME}_${TIMESTAMP}.tar.gz"
+TEMP_PACKAGE="/tmp/${PACKAGE_NAME}"
 
-tar -czf "$PACKAGE_NAME" \
+tar -czf "$TEMP_PACKAGE" \
     --exclude='pgdata' \
     --exclude='__pycache__' \
     --exclude='*.pyc' \
     --exclude='.git' \
     --exclude='node_modules' \
     --exclude='*.log' \
+    --exclude='*.tar.gz' \
     .
 
 print_success "Package created: $PACKAGE_NAME"
 
 # Upload to server
 print_info "Uploading to server..."
-scp "$PACKAGE_NAME" "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
+scp "$TEMP_PACKAGE" "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
 print_success "Upload complete"
 
 # Deploy on server
@@ -141,7 +143,7 @@ ENDSSH
 print_success "Deployment completed successfully!"
 
 # Cleanup local package
-rm "$PACKAGE_NAME"
+rm "$TEMP_PACKAGE"
 print_info "Cleaned up local package"
 
 print_info "============================================"
